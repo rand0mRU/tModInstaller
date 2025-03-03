@@ -26,12 +26,6 @@ else:
     messagebox.showinfo("Set path","Please, set path to terraria.exe")
     setPath()
 
-def updateVersions():
-    versions = glob.glob(f"{terraria_path}/../tModLoader_*")
-    versionsF = []
-    for i in versions:
-        versionsF.append(i.split("\\")[-1])
-    return versionsF
 
 def start():
     subprocess.call(f"{terraria_path}/../{box1.get()}/start-tModLoader.bat")
@@ -72,12 +66,21 @@ btnClear = ttk.Button(root,text="Clear downloads", command=clearDir)
 btnClear.place(x=490,y=29)
 
 lbl1 = ttk.Label(root,text="Start tModLoader").place(x=20,y=60)
-box1 = ttk.Combobox(root,values=updateVersions())
-box1.place(x=10,y=80,width=170)
 btn1 = ttk.Button(root,text="Start", command=start)
+box1 = ttk.Combobox(root,values=[])
+box1.place(x=10,y=80,width=170)
 btn1.place(x=190,y=79)
-box1.current(0)
 
+
+def updateVersions():
+    versions = glob.glob(f"{terraria_path}/../tModLoader_*")
+    versionsF = []
+    for i in versions:
+        versionsF.append(i.split("\\")[-1])
+    box1["values"] = versionsF
+    return versionsF
+updateVersions()
+# box1.current(0)
 def install(releases, release_index):
     release = releases[release_index]
     assets = release.get('assets', [])
@@ -105,6 +108,8 @@ def install(releases, release_index):
             zip_ref.extractall(f"{terraria_path}/../tModLoader_{release['tag_name']}")
         pgb["value"] = 100
         messagebox.showinfo("Installation completed",f"Succesfully installed tModLoader {release['tag_name']}!")
+
+        updateVersions()
 
 
 
