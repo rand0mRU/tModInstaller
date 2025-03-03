@@ -1,0 +1,9 @@
+wget
+tkinter
+requests
+os
+zipfile
+os
+shutil
+glob
+subprocess
