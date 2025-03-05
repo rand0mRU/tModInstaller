@@ -28,7 +28,14 @@ else:
 
 
 def start():
-    subprocess.call(f"{terraria_path}/../{box1.get()}/start-tModLoader.bat")
+    subprocess.call(f"{terraria_path}/../tModLoader_{box1.get()}/start-tModLoader.bat")
+
+def remove():
+    if messagebox.askyesno("Continue", f"Are you sure won to remove tModLoader {box2.get()}?"):
+        shutil.rmtree(f"{terraria_path}/../tModLoader_{box2.get()}")
+    else:
+        messagebox.showerror("Remove failed","Remove failed: canceled by user")
+    updateVersions()
 
 root = Tk()
 root.title("tModInstaller")
@@ -52,6 +59,7 @@ def clearDir():
     try: shutil.rmtree("downloads")
     except FileNotFoundError: pass
     messagebox.showinfo("Successfully", "Successfully cleared downloads folder!")
+
 lbl = ttk.Label(root,text="Download and install tModLoader").place(x=20,y=10)
 box = ttk.Combobox(root,values=releases_with_name)
 box.place(x=10,y=30)
@@ -68,19 +76,36 @@ btnClear.place(x=490,y=29)
 lbl1 = ttk.Label(root,text="Start tModLoader").place(x=20,y=60)
 btn1 = ttk.Button(root,text="Start", command=start)
 box1 = ttk.Combobox(root,values=[])
-box1.place(x=10,y=80,width=170)
-btn1.place(x=190,y=79)
+box1.place(x=10,y=80)
+btn1.place(x=160,y=79)
+
+lbl2 = ttk.Label(root,text="Uninstall tModLoader").place(x=20,y=110)
+btn2 = ttk.Button(root,text="Uninstall", command=remove)
+box2 = ttk.Combobox(root,values=[])
+box2.place(x=10,y=130)
+btn2.place(x=160,y=129)
 
 
 def updateVersions():
     versions = glob.glob(f"{terraria_path}/../tModLoader_*")
     versionsF = []
     for i in versions:
-        versionsF.append(i.split("\\")[-1])
+        versionsF.append(i.split("\\")[-1].split("tModLoader_")[-1])
     box1["values"] = versionsF
-    return versionsF
+    box2["values"] = versionsF
+    try:
+        box1.current(0)
+        box2.current(0)
+    except:
+        pass
+
 updateVersions()
-# box1.current(0)
+
+try:
+    box1.current(0)
+    box2.current(0)
+except:
+    pass
 def install(releases, release_index):
     release = releases[release_index]
     assets = release.get('assets', [])
