@@ -37,6 +37,28 @@ def remove():
         messagebox.showerror("Remove failed","Remove failed: canceled by user")
     updateVersions()
 
+def transfer():
+    if os.path.isfile(f"{terraria_path}/../tModLoader_{box3.get()}/steam_appid.txt"):
+        if os.path.isfile(terraria_path+f"/../tModLoader_{box4.get()}/steam_appid.txt"):
+            
+            with open(f"{terraria_path}/../tModLoader_{box3.get()}/steam_appid.txt","r") as file:
+                fold = file.readline()
+            with open(f"{terraria_path}/../tModLoader_{box4.get()}/steam_appid.txt","r") as file:
+                fold1 = file.readline()
+
+            allfiles = os.listdir(f"{terraria_path}/../tModLoader_{box3.get()}/steamapps/workshop/content/{fold}")
+ 
+            # iterate on all files to move them to destination folder
+            for f in allfiles:
+                src_path = os.path.join(f"{terraria_path}/../tModLoader_{box3.get()}/steamapps/workshop/content/{fold}", f)
+                dst_path = os.path.join(f"{terraria_path}/../tModLoader_{box4.get()}/steamapps/workshop/content/{fold1}", f)
+                shutil.move(src_path, dst_path)
+
+        else: 
+            messagebox.showerror("Transfer failed",f"Transfer failed: tModLoader {box4.get()} are not initilazied! Go into the game to initialise it")
+    else: 
+        messagebox.showerror("Transfer failed",f"Transfer failed: tModLoader {box3.get()} are not initilazied! Go into the game to initialise it")
+
 root = Tk()
 root.title("tModInstaller")
 root.geometry("700x500") 
@@ -45,12 +67,15 @@ releases_url = f"https://api.github.com/repos/tModLoader/tModLoader/releases"
 response = requests.get(releases_url)
 releases = response.json()
 for index, _ in enumerate(releases):
-    releases_with_name.append(releases[index]['tag_name'])
+    if releases[index]['prerelease']:
+        releases_with_name.append(f"{releases[index]['tag_name']} preview")
+    else:
+        releases_with_name.append(f"{releases[index]['tag_name']}")
 # print(releases_with_name)
 
 def download():
     for index, _ in enumerate(releases):
-        if releases[index]['tag_name']==box.get():
+        if releases[index]['tag_name']==box.get().split(" ")[0]:
             release_index = index 
     if release_index is not None:
         install(releases, int(release_index))
@@ -85,6 +110,16 @@ box2 = ttk.Combobox(root,values=[])
 box2.place(x=10,y=130)
 btn2.place(x=160,y=129)
 
+lbl3 = ttk.Label(root,text="Transfer modifications").place(x=20,y=160)
+lbl3_1 = ttk.Label(root,text="from").place(x=10,y=180)
+box3 = ttk.Combobox(root,values=[])
+box3.place(x=45,y=180)
+lbl3_2 = ttk.Label(root,text="to").place(x=193,y=180)
+box4 = ttk.Combobox(root,values=[])
+box4.place(x=210,y=180)
+btn3 = ttk.Button(root,text="Transfer", command=transfer)
+btn3.place(x=360,y=179)
+
 
 def updateVersions():
     versions = glob.glob(f"{terraria_path}/../tModLoader_*")
@@ -93,19 +128,18 @@ def updateVersions():
         versionsF.append(i.split("\\")[-1].split("tModLoader_")[-1])
     box1["values"] = versionsF
     box2["values"] = versionsF
+    box3["values"] = versionsF
+    box4["values"] = versionsF
     try:
         box1.current(0)
         box2.current(0)
+        box3.current(0)
+        box4.current(0)
     except:
         pass
 
 updateVersions()
 
-try:
-    box1.current(0)
-    box2.current(0)
-except:
-    pass
 def install(releases, release_index):
     release = releases[release_index]
     assets = release.get('assets', [])
@@ -135,13 +169,5 @@ def install(releases, release_index):
         messagebox.showinfo("Installation completed",f"Succesfully installed tModLoader {release['tag_name']}!")
 
         updateVersions()
-
-
-
-# main
-
-# start everything
-# if __name__ == "__main__":
-    # main()
 
 root.mainloop()
