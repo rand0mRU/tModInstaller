@@ -52,7 +52,17 @@ def transfer():
             for f in allfiles:
                 src_path = os.path.join(f"{terraria_path}/../tModLoader_{box3.get()}/steamapps/workshop/content/{fold}", f)
                 dst_path = os.path.join(f"{terraria_path}/../tModLoader_{box4.get()}/steamapps/workshop/content/{fold1}", f)
-                shutil.move(src_path, dst_path)
+                try:
+                    shutil.copytree(src_path, dst_path)
+                except PermissionError as err:
+                    messagebox.showerror("Error",err)
+                except FileNotFoundError as err:
+                    messagebox.showerror("Error",err)
+
+            if allfiles==[]:
+                messagebox.showwarning("Warning",f"Mods in tModLoader {box3.get()} not found!")
+
+            messagebox.showinfo("Successfully", f"Successfully made transfer from {box3.get()} into {box4.get()}!")
 
         else: 
             messagebox.showerror("Transfer failed",f"Transfer failed: tModLoader {box4.get()} are not initilazied! Go into the game to initialise it")
