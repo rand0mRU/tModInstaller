@@ -31,8 +31,13 @@ def start():
     subprocess.call(f"{terraria_path}/../tModLoader_{box1.get()}/start-tModLoader.bat")
 
 def remove():
-    if messagebox.askyesno("Continue", f"Are you sure won to remove tModLoader {box2.get()}?"):
-        shutil.rmtree(f"{terraria_path}/../tModLoader_{box2.get()}")
+    if messagebox.askyesno("Continue", f"Are you sure won to remove tModLoader {box1.get()}?"):
+        try:
+            shutil.rmtree(f"{terraria_path}/../tModLoader_{box1.get()}")
+        except (FileNotFoundError, PermissionError) as err:
+            messagebox.showerror("Error",err)
+        else:
+            messagebox.showinfo("Successfully",f"tModLoader {box1.get()} was removed!")
     else:
         messagebox.showerror("Remove failed","Remove failed: canceled by user")
     updateVersions()
@@ -108,27 +113,21 @@ btnOpenFolder.place(x=405,y=29)
 btnClear = ttk.Button(root,text="Clear downloads", command=clearDir)
 btnClear.place(x=490,y=29)
 
-lbl1 = ttk.Label(root,text="Start tModLoader").place(x=20,y=60)
-btn1 = ttk.Button(root,text="Start", command=start)
+lbl1 = ttk.Label(root,text="Control tModLoader").place(x=20,y=60)
+btn1 = ttk.Button(root,text="Start", command=start).place(x=160,y=79)
+btn2 = ttk.Button(root,text="Uninstall", command=remove).place(x=245,y=79)
 box1 = ttk.Combobox(root,values=[])
 box1.place(x=10,y=80)
-btn1.place(x=160,y=79)
 
-lbl2 = ttk.Label(root,text="Uninstall tModLoader").place(x=20,y=110)
-btn2 = ttk.Button(root,text="Uninstall", command=remove)
-box2 = ttk.Combobox(root,values=[])
-box2.place(x=10,y=130)
-btn2.place(x=160,y=129)
-
-lbl3 = ttk.Label(root,text="Transfer modifications").place(x=20,y=160)
-lbl3_1 = ttk.Label(root,text="from").place(x=10,y=180)
+lbl3 = ttk.Label(root,text="Transfer modifications").place(x=20,y=110)
+lbl3_1 = ttk.Label(root,text="from").place(x=10,y=130)
 box3 = ttk.Combobox(root,values=[])
-box3.place(x=45,y=180)
-lbl3_2 = ttk.Label(root,text="to").place(x=193,y=180)
+box3.place(x=45,y=130)
+lbl3_2 = ttk.Label(root,text="to").place(x=193,y=130)
 box4 = ttk.Combobox(root,values=[])
-box4.place(x=210,y=180)
+box4.place(x=210,y=130)
 btn3 = ttk.Button(root,text="Transfer", command=transfer)
-btn3.place(x=360,y=179)
+btn3.place(x=360,y=129)
 
 
 def updateVersions():
@@ -137,12 +136,10 @@ def updateVersions():
     for i in versions:
         versionsF.append(i.split("\\")[-1].split("tModLoader_")[-1])
     box1["values"] = versionsF
-    box2["values"] = versionsF
     box3["values"] = versionsF
     box4["values"] = versionsF
     try:
         box1.current(0)
-        box2.current(0)
         box3.current(0)
         box4.current(0)
     except:
@@ -174,9 +171,14 @@ def install(releases, release_index):
 
         root.update_idletasks()
         with zipfile.ZipFile(f"{download_path}/{filename}", 'r') as zip_ref:
-            zip_ref.extractall(f"{terraria_path}/../tModLoader_{release['tag_name']}")
+            if release['prerelease']:
+                zip_ref.extractall(f"{terraria_path}/../tModLoader_{release['tag_name']}-preview")
+            else:
+                zip_ref.extractall(f"{terraria_path}/../tModLoader_{release['tag_name']}")
+
         pgb["value"] = 100
         messagebox.showinfo("Installation completed",f"Succesfully installed tModLoader {release['tag_name']}!")
+        pgb["value"] = 0
 
         updateVersions()
 
