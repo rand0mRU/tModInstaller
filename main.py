@@ -30,6 +30,9 @@ else:
 def start():
     subprocess.call(f"{terraria_path}/../tModLoader_{box1.get()}/start-tModLoader.bat")
 
+def startServer():
+    subprocess.call(f"{terraria_path}/../tModLoader_{box1.get()}/start-tModLoaderServer.bat")
+
 def remove():
     if messagebox.askyesno("Continue", f"Are you sure won to remove tModLoader {box1.get()}?"):
         try:
@@ -43,40 +46,42 @@ def remove():
     updateVersions()
 
 def transfer():
-    if os.path.isfile(f"{terraria_path}/../tModLoader_{box3.get()}/steam_appid.txt"):
-        if os.path.isfile(terraria_path+f"/../tModLoader_{box4.get()}/steam_appid.txt"):
-            
-            with open(f"{terraria_path}/../tModLoader_{box3.get()}/steam_appid.txt","r") as file:
-                fold = file.readline()
-            with open(f"{terraria_path}/../tModLoader_{box4.get()}/steam_appid.txt","r") as file:
-                fold1 = file.readline()
+    if box3.get()==box4.get(): messagebox.showwarning("Warning","Please select two different versions for porting")
+    else:
+        if os.path.isfile(f"{terraria_path}/../tModLoader_{box3.get()}/steam_appid.txt"):
+            if os.path.isfile(terraria_path+f"/../tModLoader_{box4.get()}/steam_appid.txt"):
+                
+                with open(f"{terraria_path}/../tModLoader_{box3.get()}/steam_appid.txt","r") as file:
+                    fold = file.readline()
+                with open(f"{terraria_path}/../tModLoader_{box4.get()}/steam_appid.txt","r") as file:
+                    fold1 = file.readline()
 
-            allfiles = os.listdir(f"{terraria_path}/../tModLoader_{box3.get()}/steamapps/workshop/content/{fold}")
- 
-            # iterate on all files to move them to destination folder
-            for f in allfiles:
-                src_path = os.path.join(f"{terraria_path}/../tModLoader_{box3.get()}/steamapps/workshop/content/{fold}", f)
-                dst_path = os.path.join(f"{terraria_path}/../tModLoader_{box4.get()}/steamapps/workshop/content/{fold1}", f)
-                try:
-                    shutil.copytree(src_path, dst_path)
-                except PermissionError as err:
-                    messagebox.showerror("Error",err)
-                except FileNotFoundError as err:
-                    messagebox.showerror("Error",err)
+                allfiles = os.listdir(f"{terraria_path}/../tModLoader_{box3.get()}/steamapps/workshop/content/{fold}")
+    
+                # iterate on all files to move them to destination folder
+                for f in allfiles:
+                    src_path = os.path.join(f"{terraria_path}/../tModLoader_{box3.get()}/steamapps/workshop/content/{fold}", f)
+                    dst_path = os.path.join(f"{terraria_path}/../tModLoader_{box4.get()}/steamapps/workshop/content/{fold1}", f)
+                    try:
+                        shutil.copytree(src_path, dst_path)
+                    except PermissionError as err:
+                        messagebox.showerror("Error",err)
+                    except FileNotFoundError as err:
+                        messagebox.showerror("Error",err)
 
-            if allfiles==[]:
-                messagebox.showwarning("Warning",f"Mods in tModLoader {box3.get()} not found!")
+                if allfiles==[]:
+                    messagebox.showwarning("Warning",f"Mods in tModLoader {box3.get()} not found!")
 
-            messagebox.showinfo("Successfully", f"Successfully made transfer from {box3.get()} into {box4.get()}!")
+                messagebox.showinfo("Successfully", f"Successfully made transfer from {box3.get()} into {box4.get()}!")
 
+            else: 
+                messagebox.showerror("Transfer failed",f"Transfer failed: tModLoader {box4.get()} are not initilazied! Go into the game to initialise it")
         else: 
-            messagebox.showerror("Transfer failed",f"Transfer failed: tModLoader {box4.get()} are not initilazied! Go into the game to initialise it")
-    else: 
-        messagebox.showerror("Transfer failed",f"Transfer failed: tModLoader {box3.get()} are not initilazied! Go into the game to initialise it")
+            messagebox.showerror("Transfer failed",f"Transfer failed: tModLoader {box3.get()} are not initilazied! Go into the game to initialise it")
 
 root = Tk()
 root.title("tModInstaller")
-root.geometry("700x500") 
+root.geometry("600x175") 
 releases_with_name = []
 releases_url = f"https://api.github.com/repos/tModLoader/tModLoader/releases"
 response = requests.get(releases_url)
@@ -115,7 +120,8 @@ btnClear.place(x=490,y=29)
 
 lbl1 = ttk.Label(root,text="Control tModLoader").place(x=20,y=60)
 btn1 = ttk.Button(root,text="Start", command=start).place(x=160,y=79)
-btn2 = ttk.Button(root,text="Uninstall", command=remove).place(x=245,y=79)
+btn1 = ttk.Button(root,text="Run server", command=startServer).place(x=245,y=79)
+btn2 = ttk.Button(root,text="Uninstall", command=remove).place(x=330,y=79)
 box1 = ttk.Combobox(root,values=[])
 box1.place(x=10,y=80)
 
