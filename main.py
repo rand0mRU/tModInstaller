@@ -88,7 +88,9 @@ def transfer():
 root = Tk()
 root.title("tModInstaller")
 root.geometry("600x175") 
-root.iconbitmap("icon.png")
+root.minsize(600,175)
+icon = PhotoImage(file = "icon.png")
+root.iconphoto(False, icon)
 releases_with_name = []
 releases_url = f"https://api.github.com/repos/tModLoader/tModLoader/releases"
 response = requests.get(releases_url)
