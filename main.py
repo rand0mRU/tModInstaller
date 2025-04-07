@@ -1,9 +1,13 @@
 import wget, tkinter, requests, os, zipfile, os.path, os, shutil, glob, subprocess
 from tkinter import *
 from tkinter import ttk, messagebox, filedialog
-with open("path.txt","r") as file:
-    terraria_path = file.readline()
-    print(terraria_path)
+try:
+    with open("path.txt","r") as file:
+        terraria_path = file.readline()
+        print(terraria_path)
+except FileNotFoundError:
+    messagebox.showerror("FileNotFoundError","File 'path.txt' not founded! Please, launch app in main directory.")
+    quit()
 def setPath():
     global terraria_path
     terraria_path = filedialog.askdirectory(title="Path to Terraria...")
@@ -28,10 +32,12 @@ else:
 
 
 def start():
-    subprocess.call(f"{terraria_path}/../tModLoader_{box1.get()}/start-tModLoader.bat")
+    try: subprocess.call(f"{terraria_path}/../tModLoader_{box1.get()}/start-tModLoader.bat")
+    except (FileNotFoundError, PermissionError) as err: messagebox.showerror("Error",err)
 
 def startServer():
-    subprocess.call(f"{terraria_path}/../tModLoader_{box1.get()}/start-tModLoaderServer.bat")
+    try: subprocess.call(f"{terraria_path}/../tModLoader_{box1.get()}/start-tModLoaderServer.bat")
+    except (FileNotFoundError, PermissionError) as err: messagebox.showerror("Error",err)
 
 def remove():
     if messagebox.askyesno("Continue", f"Are you sure won to remove tModLoader {box1.get()}?"):
@@ -82,6 +88,7 @@ def transfer():
 root = Tk()
 root.title("tModInstaller")
 root.geometry("600x175") 
+root.iconbitmap("icon.png")
 releases_with_name = []
 releases_url = f"https://api.github.com/repos/tModLoader/tModLoader/releases"
 response = requests.get(releases_url)
@@ -152,6 +159,10 @@ def updateVersions():
         pass
 
 updateVersions()
+
+
+btnUpdate = ttk.Button(root,text="Update versions", command=updateVersions)
+btnUpdate .place(x=490,y=129)
 
 def install(releases, release_index):
     release = releases[release_index]
