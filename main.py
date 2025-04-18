@@ -1,29 +1,34 @@
 import wget, tkinter, requests, os, zipfile, os.path, os, shutil, glob, subprocess
 from tkinter import *
 from tkinter import ttk, messagebox, filedialog
-try:
-    with open("path.txt","r") as file:
-        terraria_path = file.readline()
-        print(terraria_path)
-except FileNotFoundError:
-    messagebox.showerror("FileNotFoundError","File 'path.txt' not founded! Please, launch app in main directory.")
-    quit()
+
 def setPath():
     global terraria_path
     terraria_path = filedialog.askdirectory(title="Path to Terraria...")
     if terraria_path!="" and os.path.isfile(terraria_path+"/Terraria.exe"): pass
     else: 
-        messagebox.showwarning("Set path","Please, set correct path to terraria.exe")
-        setPath()
+        if messagebox.askokcancel("Set path","Please, set correct path to terraria.exe"): setPath()
+        else: quit()
     with open("path.txt","w") as file:
         file.write(terraria_path)
         print(terraria_path)
 
 
-    
 def openFolder():
     path = os.path.realpath(terraria_path+"/../")
     os.startfile(path)
+
+
+try:
+    with open("path.txt","r") as file:
+        terraria_path = file.readline()
+        print(terraria_path)
+except FileNotFoundError:
+    if (os.path.isfile(os.getcwd()+"/main.py")):
+        with open("path.txt","w") as file: terraria_path = ""
+    else: 
+        messagebox.showerror("FileNotFoundError","File 'path.txt' not founded! Please, launch app in main directory or create file path.txt.")
+        quit()
 
 if terraria_path!="" and os.path.isfile(terraria_path+"/Terraria.exe"): pass
 else:
