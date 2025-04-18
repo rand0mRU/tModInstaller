@@ -24,11 +24,11 @@ try:
         terraria_path = file.readline()
         print(terraria_path)
 except FileNotFoundError:
-    if (os.path.isfile(os.getcwd()+"/main.py")):
+    if (os.path.isfile(os.getcwd()+"/main.py") or os.path.isfile(os.getcwd()+"/tModInstaller.exe")):
         with open("path.txt","w") as file: terraria_path = ""
     else: 
         messagebox.showerror("FileNotFoundError","File 'path.txt' not founded! Please, launch app in main directory or create file path.txt.")
-        quit()
+        quit(0)
 
 if terraria_path!="" and os.path.isfile(terraria_path+"/Terraria.exe"): pass
 else:
